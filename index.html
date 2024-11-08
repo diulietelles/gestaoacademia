@@ -1,0 +1,1901 @@
+<html>
+  <head>
+    <base href="." />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Gerenciamento de Academia</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <style>
+      :root[data-theme='dark'] {
+        --primary: #00f2fe;
+        --secondary: #4facfe;
+        --success: #38ef7d;
+        --danger: #ff416c;
+        --light: #f8f9fa;
+        --dark: #1a1b1f;
+        --gray: #8f9aad;
+        --background: #131417;
+        --card-bg: rgba(255, 255, 255, 0.05);
+        --text-color: var(--light);
+        --border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      :root[data-theme='light'] {
+        --primary: #4facfe;
+        --secondary: #00f2fe;
+        --success: #38ef7d;
+        --danger: #ff416c;
+        --light: #1a1b1f;
+        --dark: #f8f9fa;
+        --gray: #6c757d;
+        --background: #f0f2f5;
+        --card-bg: #ffffff;
+        --text-color: #1a1b1f;
+        --border-color: rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        transition: all 0.2s ease-in-out;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text-color);
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      nav {
+        background: rgba(26, 27, 31, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      nav .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav-links button {
+        color: var(--dark);
+        font-weight: 500;
+        position: relative;
+      }
+
+      .nav-links button::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: var(--primary);
+        transition: all 0.3s;
+        transform: translateX(-50%);
+      }
+
+      .nav-links button:hover::after {
+        width: 100%;
+      }
+
+      .card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        padding: 25px;
+        margin: 25px 0;
+        box-shadow: 0 4px 20px rgba(0, 242, 254, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(0, 242, 254, 0.2);
+      }
+
+      .card h2 {
+        color: var(--primary);
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      label {
+        font-weight: 500;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+      }
+
+      input,
+      select,
+      textarea {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--text-color);
+        transition: border-color 0.2s;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.2);
+      }
+
+      button {
+        background: linear-gradient(to right, #ff8c00, #ff00ff) !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none;
+        padding: 0.75rem 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+      }
+
+      .button[style*='var(--success)'] {
+        background: linear-gradient(to right, #38ef7d, #11998e) !important;
+        border-radius: 8px;
+      }
+
+      button[style*='var(--danger)'] {
+        background: linear-gradient(to right, #ff416c, #ff4b2b) !important;
+        border-radius: 8px;
+      }
+
+      .table {
+        margin-top: 1rem;
+      }
+
+      .table th {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        color: var(--dark);
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .table td {
+        color: var(--text-color);
+        padding: 1rem;
+        font-size: 0.875rem;
+      }
+
+      .table tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .status-active {
+        background: linear-gradient(to right, #38ef7d, #11998e);
+        color: var(--dark);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        display: inline-block;
+      }
+
+      .status-inactive {
+        background: linear-gradient(to right, #ff416c, #ff4b2b);
+        color: var(--text-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        display: inline-block;
+      }
+
+      .action-buttons button {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+
+      .exercises-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+      }
+
+      .exercise-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr auto;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+      }
+
+      .remove-btn {
+        color: var(--danger);
+        padding: 5px 10px;
+      }
+
+      .add-btn {
+        background: linear-gradient(to right, #ff8c00, #ff00ff) !important;
+        color: white !important;
+        border-radius: 8px !important;
+        margin-top: 10px;
+      }
+
+      .treino-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px rgba(0, 242, 254, 0.1);
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+      }
+
+      .exercicios-lista {
+        margin: 10px 0;
+      }
+
+      .exercicio-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        margin: 5px 0;
+        border-radius: 4px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        resize: vertical;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        .nav-links {
+          flex-wrap: wrap;
+        }
+
+        .table {
+          display: block;
+          overflow-x: auto;
+        }
+      }
+
+      .theme-toggle {
+        padding: 0.5rem;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(to right, #ff8c00, #ff00ff) !important;
+        color: white !important;
+        border-radius: 50% !important;
+        border: 1px solid var(--border-color);
+      }
+
+      .theme-toggle:hover {
+        background: linear-gradient(to right, #ff8c00, #ff00ff) !important;
+        color: white !important;
+      }
+
+      .maintenance-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .maintenance-item {
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .staff-section {
+        margin-top: 20px;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        margin-top: 20px;
+      }
+
+      .calendar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 10px;
+      }
+
+      .calendar-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      .calendar-cell {
+        aspect-ratio: 1;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--card-bg);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .calendar-cell:hover {
+        background: rgba(255, 140, 0, 0.1);
+      }
+
+      .has-folga {
+        background: linear-gradient(
+          to bottom right,
+          rgba(255, 140, 0, 0.2),
+          rgba(255, 0, 255, 0.2)
+        );
+      }
+
+      .folga-indicator {
+        font-size: 0.7em;
+        color: var(--primary);
+        margin-top: 5px;
+      }
+
+      .folgas-lista {
+        margin-top: 20px;
+        padding: 20px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+      }
+
+      .folga-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin: 5px 0;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+      }
+
+      .remove-btn {
+        padding: 5px 10px;
+        background: var(--danger) !important;
+      }
+
+      .pagamentos-section .status-pago {
+        color: var(--success);
+      }
+
+      .pagamentos-section .status-pendente {
+        color: var(--danger);
+      }
+
+      .planos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .plano-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .plano-opcao {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .desconto {
+        background: linear-gradient(to right, #ff8c00, #ff00ff);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+      }
+
+      .relatorio-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .metricas {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .metrica {
+        text-align: center;
+      }
+
+      .metrica span {
+        font-size: 0.9em;
+        color: var(--gray);
+      }
+
+      .metrica strong {
+        display: block;
+        font-size: 1.5em;
+        margin-top: 5px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-bar > div {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .assiduidade-otima {
+        background: linear-gradient(to right, #38ef7d, #11998e);
+      }
+
+      .assiduidade-boa {
+        background: linear-gradient(to right, #ff8c00, #ff00ff);
+      }
+
+      .assiduidade-baixa {
+        background: linear-gradient(to right, #ff416c, #ff4b2b);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .weekday-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        height: 200px;
+        padding: 20px;
+      }
+
+      .weekday-bar {
+        width: 40px;
+        background: linear-gradient(to top, #ff8c00, #ff00ff);
+        border-radius: 4px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 5px;
+        color: white;
+        font-size: 0.8em;
+        transition: height 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <nav>
+        <div class="container">
+          <div class="logo">Gestao Academia</div>
+          <div class="nav-links">
+            <button @click="toggleTheme" class="theme-toggle">
+              <i :class="theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'"></i>
+            </button>
+            <button
+              @click="setActiveNav('alunos')"
+              :class="{ active: activeNav === 'alunos' }"
+            >
+              <i class="fas fa-users"></i> Alunos
+            </button>
+            <button
+              @click="setActiveNav('professores')"
+              :class="{ active: activeNav === 'professores' }"
+            >
+              <i class="fas fa-chalkboard-teacher"></i> Professores
+            </button>
+            <button
+              @click="setActiveNav('aulas')"
+              :class="{ active: activeNav === 'aulas' }"
+            >
+              <i class="fas fa-dumbbell"></i> Aulas
+            </button>
+            <button
+              @click="setActiveNav('planos')"
+              :class="{ active: activeNav === 'planos' }"
+            >
+              <i class="fas fa-clipboard-list"></i> Planos
+            </button>
+            <button
+              @click="setActiveNav('treinos')"
+              :class="{ active: activeNav === 'treinos' }"
+            >
+              <i class="fas fa-running"></i> Treinos
+            </button>
+            <button
+              @click="setActiveNav('gestao')"
+              :class="{ active: activeNav === 'gestao' }"
+            >
+              <i class="fas fa-cogs"></i> Gestão
+            </button>
+            <button
+              @click="setActiveNav('checkin')"
+              :class="{ active: activeNav === 'checkin' }"
+            >
+              <i class="fas fa-clipboard-check"></i> Check-in
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container">
+        <!-- Alunos -->
+        <div v-if="currentView === 'alunos'">
+          <div class="card">
+            <h2>Cadastro de Alunos</h2>
+            <form @submit.prevent="cadastrarAluno">
+              <div class="form-group">
+                <label>Nome</label>
+                <input v-model="novoAluno.nome" required />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" v-model="novoAluno.email" required />
+              </div>
+              <div class="form-group">
+                <label>Telefone</label>
+                <input v-model="novoAluno.telefone" required />
+              </div>
+              <div class="form-group">
+                <label>Plano</label>
+                <select v-model="novoAluno.plano">
+                  <option
+                    v-for="plano in planos"
+                    :key="plano.id"
+                    :value="plano.id"
+                  >
+                    {{ plano.nome }}
+                  </option>
+                </select>
+              </div>
+              <button type="submit">Cadastrar</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Lista de Alunos</h2>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Telefone</th>
+                  <th>Plano</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="aluno in alunos" :key="aluno.id">
+                  <td>{{ aluno.nome }}</td>
+                  <td>{{ aluno.email }}</td>
+                  <td>{{ aluno.telefone }}</td>
+                  <td>{{ getPlanName(aluno.plano) }}</td>
+                  <td
+                    :class="aluno.ativo ? 'status-active' : 'status-inactive'"
+                  >
+                    {{ aluno.ativo ? 'Ativo' : 'Inativo' }}
+                  </td>
+                  <td class="action-buttons">
+                    <button @click="editarAluno(aluno)">Editar</button>
+                    <button
+                      @click="toggleAtivoAluno(aluno)"
+                      :style="{ background: aluno.ativo ? 'var(--danger)' : 'var(--success)' }"
+                    >
+                      {{ aluno.ativo ? 'Desativar' : 'Ativar' }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Professores -->
+        <div v-if="currentView === 'professores'">
+          <div class="card">
+            <h2>Cadastro de Professores</h2>
+            <form @submit.prevent="cadastrarProfessor">
+              <div class="form-group">
+                <label>Nome</label>
+                <input v-model="novoProfessor.nome" required />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" v-model="novoProfessor.email" required />
+              </div>
+              <div class="form-group">
+                <label>Especialidade</label>
+                <input v-model="novoProfessor.especialidade" required />
+              </div>
+              <button type="submit">Cadastrar</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Lista de Professores</h2>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Especialidade</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="professor in professores" :key="professor.id">
+                  <td>{{ professor.nome }}</td>
+                  <td>{{ professor.email }}</td>
+                  <td>{{ professor.especialidade }}</td>
+                  <td
+                    :class="professor.ativo ? 'status-active' : 'status-inactive'"
+                  >
+                    {{ professor.ativo ? 'Ativo' : 'Inativo' }}
+                  </td>
+                  <td class="action-buttons">
+                    <button @click="editarProfessor(professor)">Editar</button>
+                    <button
+                      @click="toggleAtivoProfessor(professor)"
+                      :style="{ background: professor.ativo ? 'var(--danger)' : 'var(--success)' }"
+                    >
+                      {{ professor.ativo ? 'Desativar' : 'Ativar' }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Aulas -->
+        <div v-if="currentView === 'aulas'">
+          <div class="card">
+            <h2>Cadastro de Aulas</h2>
+            <form @submit.prevent="cadastrarAula">
+              <div class="form-group">
+                <label>Nome da Aula</label>
+                <input v-model="novaAula.nome" required />
+              </div>
+              <div class="form-group">
+                <label>Professor</label>
+                <select v-model="novaAula.professor">
+                  <option
+                    v-for="professor in professoresAtivos"
+                    :key="professor.id"
+                    :value="professor.id"
+                  >
+                    {{ professor.nome }}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Horário</label>
+                <input type="time" v-model="novaAula.horario" required />
+              </div>
+              <div class="form-group">
+                <label>Capacidade</label>
+                <input type="number" v-model="novaAula.capacidade" required />
+              </div>
+              <button type="submit">Cadastrar</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Lista de Aulas</h2>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Professor</th>
+                  <th>Horário</th>
+                  <th>Capacidade</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="aula in aulas" :key="aula.id">
+                  <td>{{ aula.nome }}</td>
+                  <td>{{ getProfessorName(aula.professor) }}</td>
+                  <td>{{ aula.horario }}</td>
+                  <td>{{ aula.capacidade }}</td>
+                  <td :class="aula.ativa ? 'status-active' : 'status-inactive'">
+                    {{ aula.ativa ? 'Ativa' : 'Inativa' }}
+                  </td>
+                  <td class="action-buttons">
+                    <button @click="editarAula(aula)">Editar</button>
+                    <button
+                      @click="toggleAtivaAula(aula)"
+                      :style="{ background: aula.ativa ? 'var(--danger)' : 'var(--success)' }"
+                    >
+                      {{ aula.ativa ? 'Desativar' : 'Ativar' }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Planos -->
+        <div v-if="currentView === 'planos'">
+          <div class="card">
+            <h2>Cadastro de Planos</h2>
+            <form @submit.prevent="cadastrarPlano">
+              <div class="form-group">
+                <label>Nome do Plano</label>
+                <input v-model="novoPlano.nome" required />
+              </div>
+              <div class="form-group">
+                <label>Valor Mensal</label>
+                <input type="number" v-model="novoPlano.valor" required />
+              </div>
+              <div class="form-group">
+                <label>Descrição</label>
+                <input v-model="novoPlano.descricao" required />
+              </div>
+              <button type="submit">Cadastrar</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Lista de Planos</h2>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Valor</th>
+                  <th>Descrição</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="plano in planos" :key="plano.id">
+                  <td>{{ plano.nome }}</td>
+                  <td>R$ {{ plano.valor }}</td>
+                  <td>{{ plano.descricao }}</td>
+                  <td
+                    :class="plano.ativo ? 'status-active' : 'status-inactive'"
+                  >
+                    {{ plano.ativo ? 'Ativo' : 'Inativo' }}
+                  </td>
+                  <td class="action-buttons">
+                    <button @click="editarPlano(plano)">Editar</button>
+                    <button
+                      @click="toggleAtivoPlano(plano)"
+                      :style="{ background: plano.ativo ? 'var(--danger)' : 'var(--success)' }"
+                    >
+                      {{ plano.ativo ? 'Desativar' : 'Ativar' }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Treinos -->
+        <div v-if="currentView === 'treinos'">
+          <div class="card">
+            <h2>Gerenciar Treinos</h2>
+            <div class="form-group">
+              <label>Selecionar Aluno</label>
+              <select v-model="selectedAlunoTreino">
+                <option value="">Escolha um aluno</option>
+                <option
+                  v-for="aluno in alunos"
+                  :key="aluno.id"
+                  :value="aluno.id"
+                >
+                  {{ aluno.nome }}
+                </option>
+              </select>
+            </div>
+
+            <div v-if="selectedAlunoTreino">
+              <form @submit.prevent="adicionarTreino">
+                <div class="form-group">
+                  <label>Nome do Treino</label>
+                  <input v-model="novoTreino.nome" required />
+                </div>
+                <div class="form-group">
+                  <label>Descrição</label>
+                  <textarea v-model="novoTreino.descricao" required></textarea>
+                </div>
+
+                <div class="exercises-section">
+                  <h3>Exercícios</h3>
+                  <div
+                    v-for="(exercicio, index) in novoTreino.exercicios"
+                    :key="index"
+                    class="exercise-item"
+                  >
+                    <input
+                      v-model="exercicio.nome"
+                      placeholder="Nome do exercício"
+                    />
+                    <input
+                      v-model="exercicio.series"
+                      type="number"
+                      placeholder="Séries"
+                    />
+                    <input
+                      v-model="exercicio.repeticoes"
+                      type="number"
+                      placeholder="Repetições"
+                    />
+                    <input
+                      v-model="exercicio.peso"
+                      type="number"
+                      placeholder="Peso (kg)"
+                    />
+                    <button
+                      type="button"
+                      @click="removerExercicio(index)"
+                      class="remove-btn"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    @click="adicionarExercicio"
+                    class="add-btn"
+                  >
+                    <i class="fas fa-plus"></i> Adicionar Exercício
+                  </button>
+                </div>
+
+                <button type="submit">Salvar Treino</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card" v-if="selectedAlunoTreino">
+            <h2>Treinos do Aluno</h2>
+            <div
+              v-for="treino in treinosDoAluno"
+              :key="treino.id"
+              class="treino-card"
+            >
+              <h3>{{ treino.nome }}</h3>
+              <p>{{ treino.descricao }}</p>
+              <div class="exercicios-lista">
+                <div
+                  v-for="(ex, index) in treino.exercicios"
+                  :key="index"
+                  class="exercicio-item"
+                >
+                  <span class="exercicio-nome">{{ ex.nome }}</span>
+                  <span class="exercicio-detalhes">
+                    {{ ex.series }}x{{ ex.repeticoes }} - {{ ex.peso }}kg
+                  </span>
+                </div>
+              </div>
+              <div class="treino-actions">
+                <button @click="editarTreino(treino)">Editar</button>
+                <button @click="removerTreino(treino.id)" class="danger">
+                  Remover
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gestão -->
+        <div v-if="currentView === 'gestao'">
+          <div class="tabs">
+            <button @click="gestaoTab = 'equipamentos'">Equipamentos</button>
+            <button @click="gestaoTab = 'manutencao'">Manutenção</button>
+            <button @click="gestaoTab = 'folgas'">Folgas</button>
+            <button @click="gestaoTab = 'financeiro'">Financeiro</button>
+          </div>
+
+          <!-- Equipment Management -->
+          <div v-if="gestaoTab === 'equipamentos'" class="card">
+            <h2>Gestão de Equipamentos</h2>
+            <form @submit.prevent="cadastrarEquipamento">
+              <div class="form-group">
+                <label>Nome do Equipamento</label>
+                <input v-model="novoEquipamento.nome" required />
+              </div>
+              <div class="form-group">
+                <label>Tipo</label>
+                <select v-model="novoEquipamento.tipo" required>
+                  <option value="musculacao">Musculação</option>
+                  <option value="cardio">Cardio</option>
+                  <option value="pilates">Pilates</option>
+                  <option value="artes-marciais">Artes Marciais</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Data de Aquisição</label>
+                <input
+                  type="date"
+                  v-model="novoEquipamento.dataAquisicao"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Próxima Manutenção</label>
+                <input
+                  type="date"
+                  v-model="novoEquipamento.proximaManutencao"
+                  required
+                />
+              </div>
+              <button type="submit">Cadastrar Equipamento</button>
+            </form>
+
+            <div class="maintenance-grid">
+              <div
+                v-for="equip in equipamentosAtivos"
+                :key="equip.id"
+                class="maintenance-item"
+              >
+                <h3>{{ equip.nome }}</h3>
+                <p>Tipo: {{ equip.tipo }}</p>
+                <p>Próxima Manutenção: {{ equip.proximaManutencao }}</p>
+                <p>Status: {{ equip.status }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maintenance Records -->
+          <div v-if="gestaoTab === 'manutencao'" class="card">
+            <h2>Registro de Manutenções</h2>
+            <div class="maintenance-grid">
+              <div
+                v-for="manutencao in manutencoes"
+                :key="manutencao.id"
+                class="maintenance-item"
+              >
+                <h3>{{ manutencao.equipamento }}</h3>
+                <p>Data: {{ manutencao.data }}</p>
+                <p>Tipo: {{ manutencao.tipo }}</p>
+                <p>Custo: R$ {{ manutencao.custo }}</p>
+                <p>Status: {{ manutencao.status }}</p>
+                <button
+                  v-if="manutencao.status === 'Em andamento'"
+                  @click="atualizarStatusManutencao(manutencao.id, 'Concluída')"
+                >
+                  Marcar como Concluída
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Folgas Management -->
+          <div v-if="gestaoTab === 'folgas'" class="card">
+            <h2>Gestão de Folgas</h2>
+            <form @submit.prevent="registrarFolga">
+              <div class="form-group">
+                <label>Funcionário</label>
+                <select v-model="novaFolga.funcionarioId" required>
+                  <option
+                    v-for="func in funcionarios"
+                    :key="func.id"
+                    :value="func.id"
+                  >
+                    {{ func.nome }}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Data</label>
+                <input type="date" v-model="novaFolga.data" required />
+              </div>
+              <button type="submit">Registrar Folga</button>
+            </form>
+
+            <div class="folgas-lista">
+              <h3>Folgas Registradas</h3>
+              <div
+                v-for="folga in folgasDoMes"
+                :key="folga.id"
+                class="folga-item"
+              >
+                <span>{{ folga.funcionario }} - {{ folga.data }}</span>
+                <button class="remove-btn" @click="removerFolga(folga.id)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial Management -->
+          <div v-if="gestaoTab === 'financeiro'" class="card">
+            <h2>Gestão Financeira</h2>
+            <div class="metricas">
+              <div class="metrica">
+                <span>Receitas do Mês</span>
+                <strong>R$ {{ totalReceitasMes.toFixed(2) }}</strong>
+              </div>
+              <div class="metrica">
+                <span>Despesas do Mês</span>
+                <strong>R$ {{ totalDespesasMes.toFixed(2) }}</strong>
+              </div>
+              <div class="metrica">
+                <span>Lucro</span>
+                <strong
+                  >R$ {{ (totalReceitasMes - totalDespesasMes).toFixed(2)
+                  }}</strong
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Check-in -->
+        <div v-if="currentView === 'checkin'">
+          <div class="card">
+            <h2>Check-in Rápido</h2>
+            <form @submit.prevent="realizarCheckin">
+              <div class="form-group">
+                <label>Aluno</label>
+                <select v-model="novoCheckin.alunoId" required>
+                  <option
+                    v-for="aluno in alunos"
+                    :key="aluno.id"
+                    :value="aluno.id"
+                  >
+                    {{ aluno.nome }}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tipo</label>
+                <select v-model="novoCheckin.tipo" required>
+                  <option value="Academia">Academia</option>
+                  <option value="Aula">Aula</option>
+                </select>
+              </div>
+              <div class="form-group" v-if="novoCheckin.tipo === 'Aula'">
+                <label>Aula</label>
+                <select v-model="novoCheckin.aulaId">
+                  <option v-for="aula in aulas" :key="aula.id" :value="aula.id">
+                    {{ aula.nome }} - {{ aula.horario }}
+                  </option>
+                </select>
+              </div>
+              <button type="submit">Registrar Check-in</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Relatório de Frequência</h2>
+            <div class="tabs">
+              <button @click="frequenciaTab = 'alunos'">Alunos</button>
+              <button @click="frequenciaTab = 'aulas'">Aulas</button>
+              <button @click="frequenciaTab = 'stats'">Estatísticas</button>
+            </div>
+
+            <div v-if="frequenciaTab === 'alunos'" class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Aluno</th>
+                    <th>Último Check-in</th>
+                    <th>Frequência Mensal</th>
+                    <th>Assiduidade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="aluno in alunosComFrequencia" :key="aluno.id">
+                    <td>{{ aluno.nome }}</td>
+                    <td>{{ aluno.ultimoCheckin }}</td>
+                    <td>{{ aluno.frequenciaMensal }}%</td>
+                    <td>
+                      <div class="progress-bar">
+                        <div
+                          :style="{ width: aluno.frequenciaMensal + '%' }"
+                          :class="getAssiduidadeClass(aluno.frequenciaMensal)"
+                        ></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div v-if="frequenciaTab === 'stats'" class="stats-grid">
+              <div class="stat-card">
+                <h3>Horários de Pico</h3>
+                <div class="chart-container">
+                  <!-- Add chart visualization here -->
+                </div>
+              </div>
+              <div class="stat-card">
+                <h3>Frequência por Dia</h3>
+                <div class="weekday-stats">
+                  <div
+                    v-for="(freq, index) in frequenciaStats.diasSemana"
+                    :key="index"
+                    class="weekday-bar"
+                    :style="{ height: (freq * 100) + 'px' }"
+                  >
+                    {{ getDiaSemana(index) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#app',
+        data: {
+          currentView: 'alunos',
+          activeNav: 'alunos',
+          theme: 'dark',
+          checkins: [
+            {
+              id: 1,
+              alunoId: 1,
+              data: '2024-01-25',
+              hora: '08:30',
+              tipo: 'Academia',
+            },
+            {
+              id: 2,
+              alunoId: 2,
+              data: '2024-01-25',
+              hora: '09:15',
+              tipo: 'Aula',
+              aulaId: 1,
+            },
+          ],
+          presencasAulas: [
+            {
+              id: 1,
+              aulaId: 1,
+              alunoId: 1,
+              data: '2024-01-25',
+              presente: true,
+            },
+            {
+              id: 2,
+              aulaId: 1,
+              alunoId: 2,
+              data: '2024-01-25',
+              presente: true,
+            },
+          ],
+          frequenciaStats: {
+            diasSemana: [0, 0, 0, 0, 0, 0, 0],
+            horariosPico: {},
+            mediaPresencas: 0,
+          },
+          alunos: [
+            {
+              id: 1,
+              nome: 'João Silva',
+              email: 'joao@email.com',
+              telefone: '(11) 99999-9999',
+              plano: 1,
+              ativo: true,
+            },
+            {
+              id: 2,
+              nome: 'Maria Santos',
+              email: 'maria@email.com',
+              telefone: '(11) 88888-8888',
+              plano: 2,
+              ativo: true,
+            },
+          ],
+          professores: [
+            {
+              id: 1,
+              nome: 'Carlos Oliveira',
+              email: 'carlos@email.com',
+              especialidade: 'Musculação',
+              ativo: true,
+            },
+            {
+              id: 2,
+              nome: 'Ana Paula',
+              email: 'ana@email.com',
+              especialidade: 'Yoga',
+              ativo: true,
+            },
+            {
+              id: 3,
+              nome: 'Ricardo Santos',
+              email: 'ricardo@email.com',
+              especialidade: 'Pilates',
+              ativo: true,
+            },
+            {
+              id: 4,
+              nome: 'Mestre Kim',
+              email: 'kim@email.com',
+              especialidade: 'Taekwondo',
+              ativo: true,
+            },
+            {
+              id: 5,
+              nome: 'Professor Silva',
+              email: 'silva@email.com',
+              especialidade: 'Jiu-jitsu',
+              ativo: true,
+            },
+          ],
+          aulas: [
+            {
+              id: 1,
+              nome: 'Yoga Iniciante',
+              professor: 2,
+              horario: '08:00',
+              capacidade: 20,
+              ativa: true,
+            },
+            {
+              id: 2,
+              nome: 'Musculação',
+              professor: 1,
+              horario: '10:00',
+              capacidade: 15,
+              ativa: true,
+            },
+            {
+              id: 3,
+              nome: 'Pilates Iniciante',
+              professor: 3,
+              horario: '09:00',
+              capacidade: 12,
+              ativa: true,
+            },
+            {
+              id: 4,
+              nome: 'Taekwondo Infantil',
+              professor: 4,
+              horario: '14:00',
+              capacidade: 15,
+              ativa: true,
+            },
+            {
+              id: 5,
+              nome: 'Taekwondo Adulto',
+              professor: 4,
+              horario: '19:00',
+              capacidade: 20,
+              ativa: true,
+            },
+            {
+              id: 6,
+              nome: 'Jiu-jitsu Iniciante',
+              professor: 5,
+              horario: '07:00',
+              capacidade: 15,
+              ativa: true,
+            },
+            {
+              id: 7,
+              nome: 'Jiu-jitsu Avançado',
+              professor: 5,
+              horario: '20:00',
+              capacidade: 12,
+              ativa: true,
+            },
+          ],
+          planos: [
+            {
+              id: 1,
+              nome: 'Básico',
+              valor: 89.9,
+              descricao: 'Acesso à academia',
+              ativo: true,
+            },
+            {
+              id: 2,
+              nome: 'Premium',
+              valor: 129.9,
+              descricao: 'Acesso total às modalidades',
+              ativo: true,
+            },
+            {
+              id: 3,
+              nome: 'Artes Marciais',
+              valor: 149.9,
+              descricao: 'Acesso às aulas de Taekwondo e Jiu-jitsu',
+              ativo: true,
+            },
+            {
+              id: 4,
+              nome: 'Pilates',
+              valor: 199.9,
+              descricao: 'Aulas exclusivas de Pilates',
+              ativo: true,
+            },
+          ],
+          novoAluno: {
+            nome: '',
+            email: '',
+            telefone: '',
+            plano: null,
+          },
+          novoProfessor: {
+            nome: '',
+            email: '',
+            especialidade: '',
+          },
+          novaAula: {
+            nome: '',
+            professor: null,
+            horario: '',
+            capacidade: null,
+          },
+          novoPlano: {
+            nome: '',
+            valor: null,
+            descricao: '',
+          },
+          selectedAlunoTreino: '',
+          treinos: [],
+          novoTreino: {
+            nome: '',
+            descricao: '',
+            exercicios: [],
+          },
+          staffTab: 'equipamentos',
+          novoEquipamento: {
+            nome: '',
+            tipo: '',
+            dataAquisicao: '',
+            proximaManutencao: '',
+          },
+          equipamentos: [
+            {
+              id: 1,
+              nome: 'Esteira 1',
+              tipo: 'cardio',
+              dataAquisicao: '2023-01-15',
+              proximaManutencao: '2024-02-15',
+              status: 'Ativo',
+            },
+            {
+              id: 2,
+              nome: 'Leg Press',
+              tipo: 'musculacao',
+              dataAquisicao: '2023-03-20',
+              proximaManutencao: '2024-03-20',
+              status: 'Ativo',
+            },
+          ],
+          manutencoes: [
+            {
+              id: 1,
+              equipamento: 'Esteira 1',
+              data: '2024-01-15',
+              tipo: 'Preventiva',
+              custo: 250,
+              status: 'Concluída',
+            },
+            {
+              id: 2,
+              equipamento: 'Leg Press',
+              data: '2024-01-20',
+              tipo: 'Corretiva',
+              custo: 450,
+              status: 'Em andamento',
+            },
+          ],
+          funcionarios: [
+            {
+              id: 1,
+              nome: 'João Silva',
+              cargo: 'Professor',
+              salarioBase: 3500,
+              bonus: 500,
+            },
+            {
+              id: 2,
+              nome: 'Maria Santos',
+              cargo: 'Professor',
+              salarioBase: 3500,
+              bonus: 300,
+            },
+          ],
+          periodoFerias: [
+            {
+              id: 1,
+              funcionario: 'João Silva',
+              periodo: '01/03/2024 - 30/03/2024',
+              status: 'Pendente',
+            },
+            {
+              id: 2,
+              funcionario: 'Maria Santos',
+              periodo: '15/04/2024 - 14/05/2024',
+              status: 'Aprovado',
+            },
+          ],
+          folgas: [
+            {
+              id: 1,
+              funcionario: 'João Silva',
+              data: '2024-01-15',
+              tipo: 'Folga',
+            },
+            {
+              id: 2,
+              funcionario: 'Maria Santos',
+              data: '2024-01-20',
+              tipo: 'Folga',
+            },
+          ],
+          financeiroTab: 'pagamentos',
+          totalReceitasMes: 0,
+          totalDespesasMes: 0,
+          pagamentos: [
+            {
+              id: 1,
+              alunoId: 1,
+              planoId: 1,
+              valor: 89.9,
+              dataVencimento: '2024-02-15',
+              dataPagamento: '2024-02-10',
+              status: 'Pago',
+              metodoPagamento: 'Cartão de Crédito',
+            },
+          ],
+          planosConfig: {
+            duracoes: [
+              { id: 1, nome: 'Mensal', meses: 1, desconto: 0 },
+              { id: 2, nome: 'Trimestral', meses: 3, desconto: 10 },
+              { id: 3, nome: 'Semestral', meses: 6, desconto: 15 },
+              { id: 4, nome: 'Anual', meses: 12, desconto: 25 },
+            ],
+            categorias: [
+              { id: 1, nome: 'Musculação', valor: 89.9 },
+              { id: 2, nome: 'Musculação + Aulas', valor: 129.9 },
+              { id: 3, nome: 'Artes Marciais', valor: 149.9 },
+              { id: 4, nome: 'Pilates', valor: 199.9 },
+              { id: 5, nome: 'Premium Total', valor: 249.9 },
+            ],
+          },
+          novoCheckin: {
+            alunoId: null,
+            tipo: 'Academia',
+            aulaId: null,
+          },
+          financeiro: {
+            despesas: [
+              {
+                id: 1,
+                descricao: 'Manutenção Equipamentos',
+                valor: 1500,
+                data: '2024-01-15',
+              },
+              {
+                id: 2,
+                descricao: 'Salários',
+                valor: 12000,
+                data: '2024-01-20',
+              },
+            ],
+          },
+          mesAtual: new Date(),
+          frequenciaTab: 'alunos',
+          novaFolga: {
+            funcionarioId: null,
+            data: null,
+          },
+          gestaoTab: 'equipamentos',
+        },
+        computed: {
+          professoresAtivos() {
+            return this.professores.filter((p) => p.ativo);
+          },
+          treinosDoAluno() {
+            return this.treinos.filter(
+              (t) => t.alunoId === this.selectedAlunoTreino
+            );
+          },
+          pagamentosPendentes() {
+            return this.pagamentos.filter((p) => p.status === 'Pendente');
+          },
+          alunosComFrequencia() {
+            return this.alunos.map((aluno) => {
+              const ultimoCheckin = this.checkins
+                .filter((c) => c.alunoId === aluno.id)
+                .sort((a, b) => new Date(b.data) - new Date(a.data))[0];
+              return {
+                ...aluno,
+                ultimoCheckin: ultimoCheckin
+                  ? `${ultimoCheckin.data} ${ultimoCheckin.hora}`
+                  : 'N/A',
+                frequenciaMensal: this.calcularFrequenciaMensal(aluno.id),
+              };
+            });
+          },
+          equipamentosAtivos() {
+            return this.equipamentos.filter((e) => e.status === 'Ativo');
+          },
+          manutencoesEmAndamento() {
+            return this.manutencoes.filter((m) => m.status === 'Em andamento');
+          },
+          folgasDoMes() {
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+
+            return this.folgas.filter((f) => {
+              const dataFolga = new Date(f.data);
+              return (
+                dataFolga.getMonth() === mesAtual &&
+                dataFolga.getFullYear() === anoAtual
+              );
+            });
+          },
+        },
+        methods: {
+          toggleTheme() {
+            this.theme = this.theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', this.theme);
+            localStorage.setItem('theme', this.theme);
+          },
+          setActiveNav(view) {
+            this.currentView = view;
+            this.activeNav = view;
+          },
+          getPlanName(id) {
+            const plano = this.planos.find((p) => p.id === id);
+            return plano ? plano.nome : 'N/A';
+          },
+          getProfessorName(id) {
+            const professor = this.professores.find((p) => p.id === id);
+            return professor ? professor.nome : 'N/A';
+          },
+          getAlunoNome(id) {
+            const aluno = this.alunos.find((a) => a.id === id);
+            return aluno ? aluno.nome : 'N/A';
+          },
+          calcularValorPlano(valorBase, desconto) {
+            return (valorBase * (1 - desconto / 100)).toFixed(2);
+          },
+          registrarPagamento(pagamentoId) {
+            const pagamento = this.pagamentos.find((p) => p.id === pagamentoId);
+            if (pagamento) {
+              pagamento.status = 'Pago';
+              pagamento.dataPagamento = new Date().toISOString().split('T')[0];
+              this.atualizarRelatorios();
+            }
+          },
+          atualizarRelatorios() {
+            const hoje = new Date();
+            const mes = hoje.getMonth();
+
+            this.totalReceitasMes = this.pagamentos
+              .filter((p) => new Date(p.dataPagamento).getMonth() === mes)
+              .reduce((total, p) => total + p.valor, 0);
+
+            this.totalDespesasMes = this.financeiro.despesas
+              .filter((d) => new Date(d.data).getMonth() === mes)
+              .reduce((total, d) => total + d.valor, 0);
+          },
+          adicionarExercicio() {
+            this.novoTreino.exercicios.push({
+              nome: '',
+              series: 3,
+              repeticoes: 12,
+              peso: 0,
+            });
+          },
+          removerExercicio(index) {
+            this.novoTreino.exercicios.splice(index, 1);
+          },
+          adicionarTreino() {
+            this.treinos.push({
+              id: this.treinos.length + 1,
+              alunoId: this.selectedAlunoTreino,
+              ...this.novoTreino,
+            });
+
+            this.novoTreino = {
+              nome: '',
+              descricao: '',
+              exercicios: [],
+            };
+          },
+          editarTreino(treino) {
+            this.novoTreino = { ...treino };
+          },
+          removerTreino(id) {
+            const index = this.treinos.findIndex((t) => t.id === id);
+            if (index !== -1) {
+              this.treinos.splice(index, 1);
+            }
+          },
+          cadastrarAluno() {
+            this.alunos.push({
+              id: this.alunos.length + 1,
+              ...this.novoAluno,
+              ativo: true,
+            });
+            this.novoAluno = {
+              nome: '',
+              email: '',
+              telefone: '',
+              plano: null,
+            };
+          },
+          cadastrarProfessor() {
+            this.professores.push({
+              id: this.professores.length + 1,
+              ...this.novoProfessor,
+              ativo: true,
+            });
+            this.novoProfessor = {
+              nome: '',
+              email: '',
+              especialidade: '',
+            };
+          },
+          cadastrarAula() {
+            this.aulas.push({
+              id: this.aulas.length + 1,
+              ...this.novaAula,
+              ativa: true,
+            });
+            this.novaAula = {
+              nome: '',
+              professor: null,
+              horario: '',
+              capacidade: null,
+            };
+          },
+          cadastrarPlano() {
+            this.planos.push({
+              id: this.planos.length + 1,
+              ...this.novoPlano,
+              ativo: true,
+            });
+            this.novoPlano = {
+              nome: '',
+              valor: null,
+              descricao: '',
+            };
+          },
+          cadastrarEquipamento() {
+            if (!this.novoEquipamento.nome || !this.novoEquipamento.tipo) {
+              alert('Por favor, preencha todos os campos obrigatórios');
+              return;
+            }
+
+            this.equipamentos.push({
+              id: this.equipamentos.length + 1,
+              ...this.novoEquipamento,
+              status: 'Ativo',
+              ultimaManutencao: null,
+            });
+
+            alert('Equipamento cadastrado com sucesso!');
+
+            this.novoEquipamento = {
+              nome: '',
+              tipo: '',
+              dataAquisicao: '',
+              proximaManutencao: '',
+            };
+          },
+          registrarManutencao(equipamentoId, tipo, custo) {
+            this.manutencoes.push({
+              id: this.manutencoes.length + 1,
+              equipamento:
+                this.equipamentos.find((e) => e.id === equipamentoId)?.nome ||
+                'Desconhecido',
+              data: new Date().toISOString().split('T')[0],
+              tipo: tipo,
+              custo: custo,
+              status: 'Em andamento',
+            });
+          },
+          atualizarStatusManutencao(manutencaoId, novoStatus) {
+            const manutencao = this.manutencoes.find(
+              (m) => m.id === manutencaoId
+            );
+            if (manutencao) {
+              manutencao.status = novoStatus;
+            }
+          },
+          registrarFolga() {
+            if (!this.novaFolga.funcionarioId || !this.novaFolga.data) {
+              alert('Por favor, preencha todos os campos');
+              return;
+            }
+
+            this.folgas.push({
+              id: this.folgas.length + 1,
+              funcionario: this.funcionarios.find(
+                (f) => f.id === this.novaFolga.funcionarioId
+              )?.nome,
+              data: this.novaFolga.data,
+              tipo: 'Folga',
+            });
+
+            this.novaFolga = {
+              funcionarioId: null,
+              data: null,
+            };
+          },
+          realizarCheckin() {
+            if (!this.novoCheckin.alunoId) {
+              alert('Por favor, selecione um aluno');
+              return;
+            }
+
+            const now = new Date();
+            const checkin = {
+              id: this.checkins.length + 1,
+              ...this.novoCheckin,
+              data: now.toISOString().split('T')[0],
+              hora: now.toTimeString().substring(0, 5),
+            };
+
+            // Add presence record for class if it's a class check-in
+            if (this.novoCheckin.tipo === 'Aula' && this.novoCheckin.aulaId) {
+              this.presencasAulas.push({
+                id: this.presencasAulas.length + 1,
+                aulaId: this.novoCheckin.aulaId,
+                alunoId: this.novoCheckin.alunoId,
+                data: now.toISOString().split('T')[0],
+                presente: true,
+              });
+            }
+
+            this.checkins.push(checkin);
+            this.atualizarEstatisticas();
+
+            // Reset form
+            this.novoCheckin = {
+              alunoId: null,
+              tipo: 'Academia',
+              aulaId: null,
+            };
+
+            alert('Check-in realizado com sucesso!');
+          },
+          atualizarEstatisticas() {
+            const hoje = new Date();
+            const ultimoMes = new Date(
+              hoje.getFullYear(),
+              hoje.getMonth() - 1,
+              hoje.getDate()
+            );
+
+            // Reset statistics
+            this.frequenciaStats.diasSemana = Array(7).fill(0);
+            this.frequenciaStats.horariosPico = {};
+
+            // Calculate statistics from check-ins
+            this.checkins
+              .filter((c) => new Date(c.data) >= ultimoMes)
+              .forEach((checkin) => {
+                const data = new Date(checkin.data);
+                this.frequenciaStats.diasSemana[data.getDay()]++;
+
+                const hora = checkin.hora.split(':')[0];
+                this.frequenciaStats.horariosPico[hora] =
+                  (this.frequenciaStats.horariosPico[hora] || 0) + 1;
+              });
+          },
+          calcularFrequenciaMensal(alunoId) {
+            const checkinsAluno = this.checkins.filter(
+              (c) => c.alunoId === alunoId
+            );
+            const diasFrequencia = [
+              ...new Set(checkinsAluno.map((c) => c.data)),
+            ];
+            return ((diasFrequencia.length / 30) * 100).toFixed(2); // Assume 30 dias por mês
+          },
+          getDiaSemana(index) {
+            return ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][index];
+          },
+          getAssiduidadeClass(frequencia) {
+            if (frequencia >= 75) return 'assiduidade-otima';
+            if (frequencia >= 50) return 'assiduidade-boa';
+            return 'assiduidade-baixa';
+          },
+          removerFolga(id) {
+            const index = this.folgas.findIndex((f) => f.id === id);
+            if (index !== -1) {
+              this.folgas.splice(index, 1);
+            }
+          },
+        },
+        mounted() {
+          const savedTheme = localStorage.getItem('theme') || 'dark';
+          this.theme = savedTheme;
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        },
+      });
+    </script>
+  </body>
+</html>
